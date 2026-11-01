@@ -184,7 +184,7 @@ console.log("\nask card layout");
   eq(descriptionStyle.whiteSpace, "nowrap", "long option descriptions stay on one stable summary line");
   eq(descriptionStyle.display, "block", "Ask summaries use ordinary single-line flow");
   eq(descriptionStyle.overflow, "hidden", "collapsed Ask summaries stay inside their row");
-  eq(descriptionStyle.getPropertyValue("-webkit-line-clamp"), "", "selection never changes the summary to two lines");
+  ok(["", "none"].includes(descriptionStyle.getPropertyValue("-webkit-line-clamp")), "selection never changes the summary to two lines");
   eq(descriptionStyle.textOverflow, "ellipsis", "long summaries end with a clear ellipsis");
   eq(descriptionStyle.overflowWrap, "normal", "unspaced summaries stay clipped inside the stable row");
   eq(
