@@ -60,6 +60,9 @@ eq(declaration(settingsContent, "border-radius"), undefined, "settings content i
 eq(declaration(ruleBlock(panelStyles, ".settings-field.settings-field--feedback .settings-field__control"), "display"), "contents", "feedback control column does not constrain the form");
 eq(declaration(ruleBlock(panelStyles, ".settings-field--feedback .feedback-report-form"), "grid-column"), "1 / -1", "feedback form spans the whole settings row");
 
+const usageStyles = readFileSync(resolve(testDir, "../components/UsageStatsPanel.css"), "utf8");
+eq(declaration(ruleBlock(usageStyles, ".usage-stats__heat-cell"), "fill")?.includes("--accent"), false, "empty heatmap cells stay neutral so no usage does not read as activity");
+
 const generalPage = ruleBlock(panelStyles, ".settings-page--general");
 eq(declaration(generalPage, "container"), "settings-general / inline-size", "general settings respond to their available content width");
 
