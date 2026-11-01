@@ -1088,10 +1088,7 @@ func (a *App) applyConfigOnly(mutate func(*config.Config) error) error {
 func (a *App) ensureActiveTabRebuildAllowed(setting string) error {
 	tab := a.activeTab()
 	if tab == nil {
-		if a.ctx == nil {
-			return nil
-		}
-		return fmt.Errorf("no active tab")
+		return nil
 	}
 	if err := rebuildControllerActiveWorkErrorFor(a.controllerForTab(tab), setting); err != nil {
 		return err
@@ -1237,7 +1234,8 @@ func (a *App) rebuildSettingLocked(setting string) error {
 	}
 	tab := a.activeTab()
 	if tab == nil {
-		return fmt.Errorf("no active tab")
+		// No tab means no runtime to refresh; the next tab loads the saved config.
+		return nil
 	}
 	tab.turnStartMu.Lock()
 	defer tab.turnStartMu.Unlock()

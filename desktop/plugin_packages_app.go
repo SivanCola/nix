@@ -245,9 +245,6 @@ func (a *App) RemovePlugin(name string) error {
 	}
 	defer releaseGates()
 	tab := a.activeTab()
-	if tab == nil && a.ctx != nil {
-		return fmt.Errorf("no active tab")
-	}
 	raw, _ := json.Marshal(map[string]any{"op": "uninstall", "kind": "plugin", "name": strings.TrimSpace(name), "scope": "global"})
 	tl := installsource.NewTool(installsource.Options{
 		ProjectRoot:  a.activeWorkspaceRoot(),

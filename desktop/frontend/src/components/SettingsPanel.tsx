@@ -4732,7 +4732,7 @@ function AboutSection({
         </button>
       </SettingsField>
       <SettingsField
-        className="settings-field--wide-copy settings-field--stacked"
+        className="settings-field--wide-copy settings-field--stacked settings-field--feedback"
         label={t("feedback.title")}
         hint={t("feedback.subtitle")}
       >
