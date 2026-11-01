@@ -5,6 +5,10 @@ type ProviderModelOverride struct {
 	SupportedEfforts  []string `toml:"supported_efforts"`
 	DefaultEffort     string   `toml:"default_effort"`
 	Vision            *bool    `toml:"vision"`
+	// WebSearch overrides ProviderEntry.WebSearch for this model. Nil inherits
+	// the connection. It cannot add a capability the wire protocol lacks:
+	// SupportsServerWebSearch still gates the provider request.
+	WebSearch *bool `toml:"web_search"`
 	// ContextWindow overrides the provider-wide context budget for this model.
 	// Zero inherits ProviderEntry.ContextWindow so existing configurations keep
 	// their current compaction behavior.
