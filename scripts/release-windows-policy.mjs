@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 // Explicit per-version exceptions approved by the maintainer. Credential
 // absence never selects this mode, and unlisted versions require signing.
 // verify-windows-authenticode.ps1 keeps the same list.
-const unsignedStableVersions = new Set(["0.0.1", "0.0.2"]);
+const unsignedStableVersions = new Set(["0.0.1", "0.0.2", "0.0.3"]);
 
 export function windowsSigningMode(version, channel) {
   if (!/^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?$/.test(version ?? "")) {

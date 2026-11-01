@@ -2,6 +2,216 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.0.3",
+      "releaseId": "0.0.3",
+      "baseVersion": "0.0.3",
+      "previousRelease": "0.0.2",
+      "date": "2026-11-01",
+      "channel": "stable",
+      "status": "reviewed",
+      "targetingVersion": 1,
+      "builds": {
+        "cli": "v0.0.3",
+        "desktop": "v0.0.3",
+        "npm": "0.0.3"
+      },
+      "title": {
+        "en": "Per-model native search and a calmer Settings",
+        "zh": "按模型设置原生搜索，设置页更统一"
+      },
+      "summary": {
+        "en": "Deepzora 0.0.3 lets you turn native search on or off for a single model, gives Settings one consistent surface, and fixes settings changes that failed when no tab was open. It also gives Git Bash more time to start during detection on Windows. Windows 0.0.3 is still distributed without Authenticode signing.",
+        "zh": "Deepzora 0.0.3 支持按单个模型开关原生搜索，统一了设置页的界面，并修复了未打开标签页时无法修改设置的问题。Windows 上检测 Git Bash 时也会等待更长的启动时间。Windows 0.0.3 仍未提供 Authenticode 代码签名。"
+      },
+      "surfaces": [
+        "desktop",
+        "cli"
+      ],
+      "guides": [],
+      "highlights": [
+        {
+          "kind": "new",
+          "targets": [
+            "desktop"
+          ],
+          "title": {
+            "en": "Native search per model",
+            "zh": "按模型设置原生搜索"
+          },
+          "body": {
+            "en": "Edit a model to turn native search on or off for that model only. Models you leave alone inherit the connection setting. The option is available on the Anthropic and Responses protocols, and on official DeepSeek connections. Other Chat Completions connections have no native search, so it stays disabled there.",
+            "zh": "在编辑模型时可以只为该模型开关原生搜索，未设置的模型沿用连接级配置。Anthropic、Responses 协议和官方 DeepSeek 连接可用此选项；其他 Chat Completions 连接没有原生搜索，选项保持禁用。"
+          },
+          "refs": [
+            115
+          ]
+        }
+      ],
+      "changes": {
+        "new": [],
+        "improved": [
+          {
+            "targets": [
+              "desktop"
+            ],
+            "title": {
+              "en": "One surface across Settings",
+              "zh": "设置页使用统一界面"
+            },
+            "body": {
+              "en": "The sidebar, navigation and content area now share one background, separated by a single divider, and page sections no longer sit on white blocks.",
+              "zh": "侧边栏、导航和内容区现在使用同一背景，仅以一条分隔线区分，页面分区也不再显示为白色色块。"
+            },
+            "refs": [
+              111
+            ]
+          },
+          {
+            "targets": [
+              "desktop"
+            ],
+            "title": {
+              "en": "Quieter usage heatmap",
+              "zh": "用量热力图更柔和"
+            },
+            "body": {
+              "en": "Days without usage now use a neutral color, so an empty heatmap no longer looks like activity.",
+              "zh": "没有用量的日期现在使用中性色，空白热力图不再看起来像有活动记录。"
+            },
+            "refs": [
+              112
+            ]
+          },
+          {
+            "targets": [
+              "desktop"
+            ],
+            "title": {
+              "en": "Full-width feedback box",
+              "zh": "反馈输入框占满整行"
+            },
+            "body": {
+              "en": "The feedback field in Settings now spans the full row at every window width.",
+              "zh": "设置中的反馈输入框在任意窗口宽度下都会占满整行。"
+            },
+            "refs": [
+              111
+            ]
+          },
+          {
+            "targets": [
+              "desktop",
+              "cli"
+            ],
+            "title": {
+              "en": "Dependency updates",
+              "zh": "依赖更新"
+            },
+            "body": {
+              "en": "Updated Go and desktop dependencies, including `golang.org/x/net`, `modernc.org/sqlite`, Vite and KaTeX.",
+              "zh": "更新了 Go 和桌面端依赖，包括 `golang.org/x/net`、`modernc.org/sqlite`、Vite 和 KaTeX。"
+            },
+            "refs": [
+              106,
+              108
+            ]
+          }
+        ],
+        "fixed": [
+          {
+            "targets": [
+              "desktop"
+            ],
+            "title": {
+              "en": "Settings work with no tab open",
+              "zh": "未打开标签页时也能修改设置"
+            },
+            "body": {
+              "en": "Settings that rebuild the runtime no longer fail with `no active tab` when nothing is open. They now save and apply to the next tab. Removing a plugin works in the same state.",
+              "zh": "未打开任何内容时，需要重建运行时的设置不再报 `no active tab` 错误，而是保存后在下一个标签页生效。此状态下卸载插件同样可用。"
+            },
+            "refs": [
+              111
+            ]
+          },
+          {
+            "targets": [
+              "desktop",
+              "cli"
+            ],
+            "title": {
+              "en": "More time for Git Bash detection",
+              "zh": "放宽 Git Bash 检测时间"
+            },
+            "body": {
+              "en": "On Windows, bash and git probes now wait up to 15 seconds instead of 3, so a slow first launch is less likely to be reported as not installed.",
+              "zh": "Windows 上的 bash 和 git 探测现在最多等待 15 秒（原为 3 秒），首次启动较慢时更不容易被误报为未安装。"
+            },
+            "refs": [
+              111
+            ]
+          }
+        ]
+      },
+      "upgrade": [
+        {
+          "level": "info",
+          "targets": [
+            "desktop"
+          ],
+          "title": {
+            "en": "New optional model setting",
+            "zh": "新增可选模型配置"
+          },
+          "body": {
+            "en": "`model_overrides.<model>.web_search` is optional. Existing configurations behave the same until you set it.",
+            "zh": "`model_overrides.<model>.web_search` 为可选项。未设置时，现有配置的行为不变。"
+          },
+          "refs": [
+            115
+          ]
+        }
+      ],
+      "risks": [
+        {
+          "targets": [
+            "desktop",
+            "cli"
+          ],
+          "title": {
+            "en": "Windows still unsigned",
+            "zh": "Windows 仍未代码签名"
+          },
+          "body": {
+            "en": "Windows 0.0.3 has no Deepzora Authenticode publisher signature, so Windows may show an unknown-publisher or SmartScreen warning. Desktop download and payload integrity signatures remain required. This is a version-specific exception approved by the maintainer.",
+            "zh": "Windows 0.0.3 没有 Deepzora 的 Authenticode 发布者签名，可能出现未知发布者或 SmartScreen 提示。桌面下载及载荷完整性签名仍须校验。本例外仅限该版本，由维护者批准。"
+          }
+        },
+        {
+          "targets": [
+            "desktop"
+          ],
+          "title": {
+            "en": "Native search on unverified endpoints",
+            "zh": "未验证端点上的原生搜索"
+          },
+          "body": {
+            "en": "Compatible endpoints that Deepzora has not verified can be opted in, but requests may fail if the endpoint does not support native search. Turn the option off for that model if this happens.",
+            "zh": "尚未经 Deepzora 验证的兼容端点也可以手动开启，但如果端点不支持原生搜索，请求可能失败。遇到这种情况时，请为该模型关闭此选项。"
+          },
+          "refs": [
+            115
+          ]
+        }
+      ],
+      "contributors": [],
+      "links": {
+        "github": "https://github.com/SivanCola/deepzora/releases/tag/v0.0.3",
+        "compare": "https://github.com/SivanCola/deepzora/compare/v0.0.2...v0.0.3",
+        "download": "https://github.com/SivanCola/deepzora/releases"
+      }
+    },
+    {
       "version": "0.0.2",
       "releaseId": "0.0.2",
       "baseVersion": "0.0.2",
