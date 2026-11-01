@@ -5,7 +5,15 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const workflowPath = ".github/workflows/release-desktop.yml";
+const promotePath = ".github/workflows/release-promote.yml";
 const contractPath = ".github/release-signing.yml";
+const trustedRootAnchor = "          # so they run eight at a time and any single failure fails the step.\n";
+const trustedRootFetch = `          # Concurrent verifiers race on Sigstore's TUF initialization on hosted
+          # runners, so the trusted root is fetched once and each worker reads it.
+          gh attestation trusted-root > "$RUNNER_TEMP/trusted_root.jsonl"
+`;
+const verifierTail = "            --deny-self-hosted-runners >/dev/null\n";
+const verifierTailWithRoot = `            --deny-self-hosted-runners --custom-trusted-root "$RUNNER_TEMP/trusted_root.jsonl" >/dev/null\n`;
 
 function run(command, args) {
   const result = spawnSync(command, args, { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
@@ -32,6 +40,19 @@ export function outsideSigningContract(workflow) {
   return workflow.slice(0, start) + workflow.slice(end);
 }
 
+function replaceOnce(text, search, replacement) {
+  const start = text.indexOf(search);
+  if (start < 0 || text.indexOf(search, start + 1) >= 0) throw new Error("promotion workflow trusted-root anchors are ambiguous");
+  return text.slice(0, start) + replacement + text.slice(start + search.length);
+}
+
+// The only promotion change a sealed candidate tolerates: the shared trusted
+// root that unblocked parallel provenance checks. Any other byte stays sealed.
+export function withTrustedRootRepair(workflow) {
+  const fetched = replaceOnce(workflow, trustedRootAnchor, trustedRootAnchor + trustedRootFetch);
+  return replaceOnce(fetched, verifierTail, verifierTailWithRoot);
+}
+
 export function verifyCandidateSigningRepair(candidateSHA, expectedFingerprint) {
   if (!/^[0-9a-f]{40}$/.test(candidateSHA) || !/^v1:[0-9a-f]{64}$/.test(expectedFingerprint)) {
     throw new Error("invalid candidate signing identity");
@@ -41,13 +62,18 @@ export function verifyCandidateSigningRepair(candidateSHA, expectedFingerprint) 
   if (spawnSync("git", ["diff", "--quiet", candidateSHA, "HEAD", "--", contractPath]).status !== 0) {
     throw new Error("protected signing contract changed after candidate sealing");
   }
-  const otherFiles = fingerprintFiles(contract).filter(file => file !== workflowPath);
+  const otherFiles = fingerprintFiles(contract).filter(file => file !== workflowPath && file !== promotePath);
   if (spawnSync("git", ["diff", "--quiet", candidateSHA, "HEAD", "--", ...otherFiles]).status !== 0) {
     throw new Error("signing inputs changed after candidate sealing");
   }
   const originalWorkflow = run("git", ["show", `${candidateSHA}:${workflowPath}`]);
   if (outsideSigningContract(originalWorkflow) !== outsideSigningContract(readFileSync(workflowPath, "utf8").trimEnd())) {
     throw new Error("Desktop build or publication changed after candidate sealing");
+  }
+  const originalPromote = run("git", ["show", `${candidateSHA}:${promotePath}`]);
+  const currentPromote = readFileSync(promotePath, "utf8").trimEnd();
+  if (currentPromote !== originalPromote && currentPromote !== withTrustedRootRepair(originalPromote)) {
+    throw new Error("promotion workflow changed beyond the trusted-root repair after candidate sealing");
   }
 
   const temporary = mkdtempSync(path.join(tmpdir(), "deepzora-signing-candidate-"));
