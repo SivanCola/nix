@@ -5,6 +5,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const workflowPath = ".github/workflows/release-desktop.yml";
+const promotePath = ".github/workflows/release-promote.yml";
 const contractPath = ".github/release-signing.yml";
 
 function run(command, args) {
@@ -21,15 +22,26 @@ export function fingerprintFiles(contract) {
   return files;
 }
 
-export function outsideSigningContract(workflow) {
-  const startMarker = "\n  signing-contract:\n";
-  const endMarker = "\n  build:\n";
+function withoutJob(workflow, job, nextJob, label) {
+  const startMarker = `\n  ${job}:\n`;
+  const endMarker = `\n  ${nextJob}:\n`;
   const start = workflow.indexOf(startMarker);
   const end = workflow.indexOf(endMarker, start + startMarker.length);
   if (start < 0 || end < 0 || workflow.indexOf(startMarker, start + 1) >= 0 || workflow.indexOf(endMarker, end + 1) >= 0) {
-    throw new Error("Desktop workflow signing-contract boundaries are ambiguous");
+    throw new Error(`${label} boundaries are ambiguous`);
   }
   return workflow.slice(0, start) + workflow.slice(end);
+}
+
+export function outsideSigningContract(workflow) {
+  return withoutJob(workflow, "signing-contract", "build", "Desktop workflow signing-contract");
+}
+
+// Preflight only verifies a sealed candidate before approval and never touches
+// signing keys or published bytes. Approval and every publisher stay byte-equal,
+// so an interrupted release can recover through a repaired verification.
+export function outsidePromotePreflight(workflow) {
+  return withoutJob(workflow, "preflight", "authorize", "Promotion workflow preflight");
 }
 
 export function verifyCandidateSigningRepair(candidateSHA, expectedFingerprint) {
@@ -41,13 +53,17 @@ export function verifyCandidateSigningRepair(candidateSHA, expectedFingerprint) 
   if (spawnSync("git", ["diff", "--quiet", candidateSHA, "HEAD", "--", contractPath]).status !== 0) {
     throw new Error("protected signing contract changed after candidate sealing");
   }
-  const otherFiles = fingerprintFiles(contract).filter(file => file !== workflowPath);
+  const otherFiles = fingerprintFiles(contract).filter(file => file !== workflowPath && file !== promotePath);
   if (spawnSync("git", ["diff", "--quiet", candidateSHA, "HEAD", "--", ...otherFiles]).status !== 0) {
     throw new Error("signing inputs changed after candidate sealing");
   }
   const originalWorkflow = run("git", ["show", `${candidateSHA}:${workflowPath}`]);
   if (outsideSigningContract(originalWorkflow) !== outsideSigningContract(readFileSync(workflowPath, "utf8").trimEnd())) {
     throw new Error("Desktop build or publication changed after candidate sealing");
+  }
+  const originalPromote = run("git", ["show", `${candidateSHA}:${promotePath}`]);
+  if (outsidePromotePreflight(originalPromote) !== outsidePromotePreflight(readFileSync(promotePath, "utf8").trimEnd())) {
+    throw new Error("release approval or publication changed after candidate sealing");
   }
 
   const temporary = mkdtempSync(path.join(tmpdir(), "deepzora-signing-candidate-"));
