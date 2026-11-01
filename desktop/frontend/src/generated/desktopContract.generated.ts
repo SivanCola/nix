@@ -3,7 +3,7 @@
 
 export const DESKTOP_PROTOCOL_VERSION = 11;
 
-export const DESKTOP_CONTRACT_DIGEST = "sha256:250f8f40805283db389fc1f05c86b8de09e02c6d4cade5adf7ba1fe552a3dc26";
+export const DESKTOP_CONTRACT_DIGEST = "sha256:fde6054c7706faa5273ed2a6bf0394d16d5d116cd1add96582bdda5ed081856f";
 
 export const DESKTOP_COMMANDS = [
   "AIRenameSessionTarget",
@@ -2844,6 +2844,7 @@ export interface ProviderModelOverrideView {
   supportedEfforts: string[];
   defaultEffort: string;
   vision?: boolean | null;
+  webSearch?: boolean | null;
   contextWindow?: number;
   maxOutputTokens?: number;
 }

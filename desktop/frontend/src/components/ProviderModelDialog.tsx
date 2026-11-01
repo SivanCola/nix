@@ -8,9 +8,10 @@ import { ModalCloseButton } from "./ModalCloseButton";
 import type { ProviderModelCapabilityView } from "../lib/types";
 import { modelDraftError } from "../lib/providerModelDraft";
 
-export interface ModelDetailsDraft { model: string; contextWindow: string; maxOutputTokens: number; vision: boolean | null; supportedEfforts: string[]; defaultEffort: string; }
-export default function ProviderModelDialog({ initial, candidates, contextDefault, capability, baseURL, busy, effortOptions, onClose, onApply, onDelete }: {
+export interface ModelDetailsDraft { model: string; contextWindow: string; maxOutputTokens: number; vision: boolean | null; webSearch: boolean | null; supportedEfforts: string[]; defaultEffort: string; }
+export default function ProviderModelDialog({ initial, candidates, contextDefault, capability, baseURL, busy, effortOptions, webSearchSupported = false, webSearchDefault = false, onClose, onApply, onDelete }: {
   initial?: ModelDetailsDraft; candidates: string[]; contextDefault?: number;
+  webSearchSupported?: boolean; webSearchDefault?: boolean;
   effortOptions?: string[]; effortDefault?: string;
   capability?: ProviderModelCapabilityView; baseURL?: string; busy: boolean; onClose: () => void; onApply: (draft: ModelDetailsDraft) => void;
   onDelete?: () => void;
@@ -21,6 +22,7 @@ export default function ProviderModelDialog({ initial, candidates, contextDefaul
   const [context, setContext] = useState(initial?.contextWindow ?? "");
   const [output, setOutput] = useState(initial?.maxOutputTokens ? String(Math.max(-1, initial.maxOutputTokens)) : "");
   const [vision, setVision] = useState(initial?.vision == null ? "auto" : String(initial.vision));
+  const [webSearch, setWebSearch] = useState(initial?.webSearch == null ? "auto" : String(initial.webSearch));
   const [effort, setEffort] = useState(initial?.defaultEffort ?? "");
   const [explicitEfforts, setExplicitEfforts] = useState(Boolean(initial?.supportedEfforts?.length));
   const [selectedEfforts, setSelectedEfforts] = useState<string[]>(initial?.supportedEfforts?.length ? initial.supportedEfforts : effortOptions ?? []);
@@ -34,6 +36,8 @@ export default function ProviderModelDialog({ initial, candidates, contextDefaul
   const validation = modelDraftError({model, context, output, vision: "auto"}, candidates, initial?.model);
   const imageBlocked = imageInputHardBlocked(baseURL, model, capability);
   const imageState = imageBlocked ? "unsupported" : imageInputState(vision === "auto" ? "auto" : vision === "true" ? "on" : "off", capability);
+  const webSearchOn = webSearchSupported && (webSearch === "auto" ? webSearchDefault : webSearch === "true");
+  const webSearchManual = webSearchSupported && webSearch !== "auto";
   const toggleEffort = (option: string, checked: boolean) => {
     setExplicitEfforts(true);
     setSelectedEfforts(current => {
@@ -44,7 +48,7 @@ export default function ProviderModelDialog({ initial, candidates, contextDefaul
   };
   return createPortal(<dialog ref={dialog} className="provider-model-dialog" data-app-overlay="" aria-labelledby={titleId}
     onCancel={event => { event.preventDefault(); if (!busy) onClose(); }}>
-    <form onSubmit={event => { event.preventDefault(); if (validation) { setError(true); return; } const defaultEffort = effort && selectedEfforts.includes(effort) ? effort : ""; onApply({ model:model.trim(), contextWindow:context.trim(), maxOutputTokens:Number(output) || 0, vision:vision === "auto" ? null : !imageBlocked && vision === "true", supportedEfforts: explicitEfforts ? selectedEfforts : [], defaultEffort }); }}>
+    <form onSubmit={event => { event.preventDefault(); if (validation) { setError(true); return; } const defaultEffort = effort && selectedEfforts.includes(effort) ? effort : ""; onApply({ model:model.trim(), contextWindow:context.trim(), maxOutputTokens:Number(output) || 0, vision:vision === "auto" ? null : !imageBlocked && vision === "true", webSearch:webSearchManual ? webSearch === "true" : null, supportedEfforts: explicitEfforts ? selectedEfforts : [], defaultEffort }); }}>
       <header><h2 id={titleId}>{t(initial ? "settings.modelDialog.edit" : "settings.models.add")}</h2><ModalCloseButton label={t("common.close")} disabled={busy} onClick={onClose}/></header>
       <label className="provider-model-dialog__id">{t("settings.modelDialog.id")}
         {initial ? <span><LockKeyhole size={16}/>{model}</span> : <input autoFocus className="mem-input" value={model} disabled={busy} onChange={e=>setModel(e.target.value)} placeholder="deepseek-v4-flash"/>}
@@ -88,8 +92,11 @@ export default function ProviderModelDialog({ initial, candidates, contextDefaul
           <p>{t("settings.modelDialog.unavailable")}</p>
           <div className="provider-model-dialog__capability-title">{t("settings.modelDialog.output")}</div>
           <div className="provider-model-dialog__chips"><label><input type="checkbox" checked disabled/>{t("settings.textInput")}<LockKeyhole size={14}/></label></div>
-          <dl><div><dt>{t("settings.modelDialog.source")}</dt><dd>{vision !== "auto" ? t("settings.modelDialog.manual") : capability ? t("settings.modelDialog.metadata") : t("settings.imageInputUnknown")}</dd></div></dl>
-          <button type="button" className="btn" disabled={busy || vision === "auto"} onClick={()=>setVision("auto")}>{t("settings.modelDialog.restore")}</button>
+          <div className="provider-model-dialog__capability-title">{t("settings.modelDialog.tools")}</div>
+          <div className="provider-model-dialog__chips"><label><input type="checkbox" checked={webSearchOn} disabled={busy || !webSearchSupported} onChange={event=>setWebSearch(String(event.target.checked))}/>{t("settings.modelDialog.nativeSearch")}</label></div>
+          <p>{t(webSearchSupported ? "settings.modelDialog.nativeSearchHint" : "settings.modelDialog.nativeSearchUnavailable")}</p>
+          <dl><div><dt>{t("settings.modelDialog.source")}</dt><dd>{vision !== "auto" || webSearchManual ? t("settings.modelDialog.manual") : capability ? t("settings.modelDialog.metadata") : t("settings.imageInputUnknown")}</dd></div></dl>
+          <button type="button" className="btn" disabled={busy || (vision === "auto" && !webSearchManual)} onClick={()=>{setVision("auto");setWebSearch("auto");}}>{t("settings.modelDialog.restore")}</button>
           <p>{t("settings.modelDialog.overrideHint")}</p>
         </aside>
       </div>
