@@ -20,7 +20,13 @@
 }
 
 .settings-screen .settings-center__nav { flex: 1; min-height: 0; border-right: 0; }
-.settings-screen .settings-center__content { margin: 0 8px 8px 0; border: 1px solid var(--border); border-radius: 16px; background: var(--bg); }
+/* Sidebar and content share one surface; only this divider separates them. */
+.settings-screen .settings-center__content { border-left: 1px solid var(--border-soft); background: var(--bg-soft); }
+/* Dissolve the control column so the form can span the row under the copy. */
+.settings-field.settings-field--feedback { row-gap: 12px; }
+.settings-field.settings-field--feedback .settings-field__control { display: contents; }
+.settings-field--feedback .feedback-report-form { grid-column: 1 / -1; margin-top: 0; }
+.settings-field--feedback .feedback-report-form .settings-inline-controls { max-width: none; }
 .settings-center {
   grid-template-columns: clamp(220px, 20.5vw, 304px) minmax(0, 1fr);
 }
@@ -520,7 +526,7 @@
   }
 
   .management-screen__back { margin: 0 10px; padding: 8px; }
-  .settings-screen .settings-center__content { margin: 0; border-radius: 0; border-inline: 0; border-bottom: 0; }
+  .settings-screen .settings-center__content { border-left: 0; }
 
   .settings-center,
   :root[data-theme-style] .settings-center {
@@ -725,6 +731,14 @@
 }
 :root .settings-center .settings-page[data-layout="form"] { max-width: 960px; }
 :root .settings-center .settings-page[data-layout="tool"] { max-width: 1200px; }
+:root .settings-center .settings-page[data-layout] > :is(.settings-section, .mem-section, .cap-mcp-settings, .appearance-overview, .diag-page) {
+  margin: 0 0 var(--settings-space);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
 :root .settings-center .settings-page[data-layout] .settings-section__head {
   align-items: center;
   gap: 16px;

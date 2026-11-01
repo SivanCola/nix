@@ -82,6 +82,7 @@ export function mergeProviderModelContextWindows(
       defaultEffort: previous?.defaultEffort ?? "",
       vision: previous?.vision ?? null,
       contextWindow: Math.max(parsedContextWindow, 0),
+      ...(typeof previous?.webSearch === "boolean" ? { webSearch: previous.webSearch } : {}),
       ...(typeof previous?.maxOutputTokens === "number"
         ? { maxOutputTokens: previous.maxOutputTokens }
         : {}),
@@ -91,6 +92,7 @@ export function mergeProviderModelContextWindows(
       || override.supportedEfforts.length > 0
       || override.defaultEffort.trim()
       || override.vision != null
+      || override.webSearch != null
       || (override.contextWindow ?? 0) > 0
       || (override.maxOutputTokens ?? 0) !== 0
     ) {

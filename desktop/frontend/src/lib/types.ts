@@ -1582,6 +1582,7 @@ export interface ProviderModelOverrideView {
   supportedEfforts: string[];
   defaultEffort: string;
   vision?: boolean | null;
+  webSearch?: boolean | null;
   contextWindow?: number;
   maxOutputTokens?: number;
 }

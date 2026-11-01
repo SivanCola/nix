@@ -270,9 +270,18 @@ func probeBash(path string) bool {
 	if runtime.GOOS != "windows" {
 		return true
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	return probeExecutable(path, "-c", "true")
+}
+
+// executableProbeTimeout must outlast a cold start: the first launch of MSYS
+// bash after boot can spend seconds in antivirus scanning and DLL loading, and
+// a healthy interpreter that misses this budget is reported as not installed.
+const executableProbeTimeout = 15 * time.Second
+
+func probeExecutable(path string, args ...string) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), executableProbeTimeout)
 	defer cancel()
-	cmd := proc.CommandContext(ctx, path, "-c", "true")
+	cmd := proc.CommandContext(ctx, path, args...)
 	cmd.Env = secrets.ProcessEnv()
 	proc.HideWindow(cmd)
 	return cmd.Run() == nil

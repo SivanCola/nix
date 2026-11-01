@@ -9,4 +9,5 @@ node --test scripts/release-candidate.test.mjs scripts/resolve-release-candidate
 node --test scripts/publish-github-update-pointer.test.mjs scripts/github-release-bootstrap.test.mjs
 bash scripts/release-candidate-tags.test.sh
 bash scripts/release-stable.test.sh
+bash scripts/release-approve.test.sh
 echo 'release executable contracts: PASS'

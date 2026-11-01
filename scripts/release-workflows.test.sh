@@ -30,6 +30,7 @@ bash scripts/verify-release-authorization.sh
 go run ./cmd/release-signing-contract validate
 bash scripts/release-candidate-tags.test.sh
 bash scripts/release-stable.test.sh
+bash scripts/release-approve.test.sh
 # Signed Windows bundles carry only versioned public names, so the acceptance
 # steps must select the published Setup suffix, never the internal build name.
 if grep -Fq "'*installer.exe'" .github/workflows/release-desktop.yml; then

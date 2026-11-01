@@ -208,9 +208,10 @@
 }
 
 /* 5 heat levels: progressively stronger accent on the elevated background.
-   Levels apply to both SVG rects and the legend swatches. */
+   Levels apply to both SVG rects and the legend swatches. Empty cells stay
+   neutral so a grid without usage does not read as tinted activity. */
 .usage-stats__heat-cell {
-  fill: color-mix(in srgb, var(--accent) 8%, var(--bg-elev));
+  fill: color-mix(in srgb, var(--fg) 8%, var(--bg-soft));
 }
 .usage-stats__heat-cell--1 {
   fill: color-mix(in srgb, var(--accent) 16%, var(--bg-elev));

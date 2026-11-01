@@ -96,7 +96,10 @@ type Config struct {
   resolves via `Config.ResolveModel`, which accepts a provider name (→ its default
   model), a bare model name, or an explicit `provider/model`. `context_window` is
   the provider-wide fallback; `model_overrides.<model>.context_window` can replace
-  it for one model. Per-model `prices` use model IDs as keys.
+  it for one model. `model_overrides.<model>.web_search` replaces the provider
+  `web_search` value for one model; it cannot add native search to a protocol
+  without a wire format for it, such as Chat Completions. Per-model `prices` use
+  model IDs as keys.
 - Streaming tool-call deltas are accumulated by index inside the provider; only
   complete `ToolCall`s are emitted.
 

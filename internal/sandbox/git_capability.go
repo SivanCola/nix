@@ -1,13 +1,8 @@
 package sandbox
 
 import (
-	"context"
 	"path/filepath"
 	"strings"
-	"time"
-
-	"deepzora/internal/proc"
-	"deepzora/internal/secrets"
 )
 
 // discoverGitCapability shares the shell inventory snapshot but remains a
@@ -78,12 +73,7 @@ func discoverGitCapability(snap *shellSnapshot) ExecutableCapability {
 }
 
 func probeGit(path string) bool {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	cmd := proc.CommandContext(ctx, path, "--version")
-	cmd.Env = secrets.ProcessEnv()
-	proc.HideWindow(cmd)
-	return cmd.Run() == nil
+	return probeExecutable(path, "--version")
 }
 
 func gitCandidatesFromWindowsBash(bashPath string) []string {
