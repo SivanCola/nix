@@ -24367,7 +24367,7 @@ body > .mermaid-diagram--fullscreen {
 
 :root[data-theme-style] .settings-center__nav {
   border-color: var(--border-soft);
-  background: var(--bg-elev);
+  background: var(--bg-soft);
 }
 
 :root[data-theme-style] .settings-center__navitem {
@@ -24376,7 +24376,7 @@ body > .mermaid-diagram--fullscreen {
 }
 
 :root[data-theme-style] .settings-center__navitem:hover {
-  background: var(--bg-soft);
+  background: var(--bg-elev);
   transform: translateX(2px);
 }
 
@@ -24387,7 +24387,7 @@ body > .mermaid-diagram--fullscreen {
 }
 
 :root[data-theme-style] .settings-center__content {
-  background: var(--chat-bg);
+  background: var(--bg-soft);
 }
 
 :root[data-theme-style] .settings-page__header {

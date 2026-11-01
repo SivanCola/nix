@@ -51,6 +51,18 @@ eq(declaration(caption, "border"), "0", "workspace borders do not leak into the 
 const settingsCenter = ruleBlock(panelStyles, ".settings-center");
 eq(declaration(settingsCenter, "grid-template-columns"), "clamp(220px, 20.5vw, 304px) minmax(0, 1fr)", "settings navigation remains readable without consuming the content pane");
 
+eq(declaration(ruleBlock(styles, ":root[data-theme-style] .settings-center__nav"), "background"), "var(--bg-soft)", "themed settings navigation shares the sidebar surface");
+eq(declaration(ruleBlock(styles, ":root[data-theme-style] .settings-center__content"), "background"), "var(--bg-soft)", "themed settings content shares the sidebar surface");
+const settingsContent = ruleBlock(panelStyles, ".settings-screen .settings-center__content");
+eq(declaration(settingsContent, "background"), "var(--bg-soft)", "settings content shares the sidebar surface");
+eq(declaration(settingsContent, "border-left"), "1px solid var(--border-soft)", "a single divider separates settings navigation from content");
+eq(declaration(settingsContent, "border-radius"), undefined, "settings content is not a floating card with a bottom edge");
+eq(declaration(ruleBlock(panelStyles, ".settings-field.settings-field--feedback .settings-field__control"), "display"), "contents", "feedback control column does not constrain the form");
+eq(declaration(ruleBlock(panelStyles, ".settings-field--feedback .feedback-report-form"), "grid-column"), "1 / -1", "feedback form spans the whole settings row");
+
+const usageStyles = readFileSync(resolve(testDir, "../components/UsageStatsPanel.css"), "utf8");
+eq(declaration(ruleBlock(usageStyles, ".usage-stats__heat-cell"), "fill")?.includes("--accent"), false, "empty heatmap cells stay neutral so no usage does not read as activity");
+
 const generalPage = ruleBlock(panelStyles, ".settings-page--general");
 eq(declaration(generalPage, "container"), "settings-general / inline-size", "general settings respond to their available content width");
 

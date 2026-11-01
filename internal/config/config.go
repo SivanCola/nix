@@ -1214,6 +1214,9 @@ func (e *ProviderEntry) applyModelOverride() {
 	if ov.Vision != nil {
 		e.visionOverride = ov.Vision
 	}
+	if ov.WebSearch != nil {
+		e.WebSearch = boolPointer(*ov.WebSearch)
+	}
 	if ov.ContextWindow > 0 {
 		e.ContextWindow = ov.ContextWindow
 	}

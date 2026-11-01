@@ -148,6 +148,7 @@ type ProviderModelOverrideView struct {
 	SupportedEfforts  []string `json:"supportedEfforts"`
 	DefaultEffort     string   `json:"defaultEffort"`
 	Vision            *bool    `json:"vision"`
+	WebSearch         *bool    `json:"webSearch"`
 	ContextWindow     int      `json:"contextWindow,omitempty"`
 	MaxOutputTokens   int      `json:"maxOutputTokens,omitempty"`
 }
@@ -388,6 +389,7 @@ func providerModelOverridesForView(overrides map[string]config.ProviderModelOver
 			SupportedEfforts:  nonNil(ov.SupportedEfforts),
 			DefaultEffort:     ov.DefaultEffort,
 			Vision:            ov.Vision,
+			WebSearch:         ov.WebSearch,
 			ContextWindow:     ov.ContextWindow,
 			MaxOutputTokens:   ov.MaxOutputTokens,
 		})
@@ -414,10 +416,11 @@ func providerModelOverridesForSave(overrides []ProviderModelOverrideView, models
 			SupportedEfforts:  nonNil(item.SupportedEfforts),
 			DefaultEffort:     strings.TrimSpace(item.DefaultEffort),
 			Vision:            item.Vision,
+			WebSearch:         item.WebSearch,
 			ContextWindow:     max(item.ContextWindow, 0),
 			MaxOutputTokens:   item.MaxOutputTokens,
 		}
-		if strings.TrimSpace(ov.ReasoningProtocol) == "" && len(ov.SupportedEfforts) == 0 && strings.TrimSpace(ov.DefaultEffort) == "" && ov.Vision == nil && ov.ContextWindow == 0 && ov.MaxOutputTokens == 0 {
+		if strings.TrimSpace(ov.ReasoningProtocol) == "" && len(ov.SupportedEfforts) == 0 && strings.TrimSpace(ov.DefaultEffort) == "" && ov.Vision == nil && ov.WebSearch == nil && ov.ContextWindow == 0 && ov.MaxOutputTokens == 0 {
 			continue
 		}
 		out[model] = ov
@@ -1088,10 +1091,7 @@ func (a *App) applyConfigOnly(mutate func(*config.Config) error) error {
 func (a *App) ensureActiveTabRebuildAllowed(setting string) error {
 	tab := a.activeTab()
 	if tab == nil {
-		if a.ctx == nil {
-			return nil
-		}
-		return fmt.Errorf("no active tab")
+		return nil
 	}
 	if err := rebuildControllerActiveWorkErrorFor(a.controllerForTab(tab), setting); err != nil {
 		return err
@@ -1237,7 +1237,8 @@ func (a *App) rebuildSettingLocked(setting string) error {
 	}
 	tab := a.activeTab()
 	if tab == nil {
-		return fmt.Errorf("no active tab")
+		// No tab means no runtime to refresh; the next tab loads the saved config.
+		return nil
 	}
 	tab.turnStartMu.Lock()
 	defer tab.turnStartMu.Unlock()

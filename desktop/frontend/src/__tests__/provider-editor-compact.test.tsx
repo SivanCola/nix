@@ -34,7 +34,7 @@ assert.equal(numbers[0].value,'','cancel restored inherited context');
 await change(numbers[0],'128000');await change(numbers[1],'4096');
 const image=dialog().querySelector<HTMLInputElement>('aside input:not(:disabled)')!;
 await act(async()=>image.click());
-assert.equal(dialog().querySelectorAll('aside input:disabled').length,4,'text is locked; video and PDF unavailable');
+assert.equal(dialog().querySelectorAll('aside input:disabled').length,5,'text is locked; video, PDF and chat-completions native search unavailable');
 await changeSelect(dialog().querySelector('select')!, '');
 await submit();
 assert.equal(save.disabled,false);

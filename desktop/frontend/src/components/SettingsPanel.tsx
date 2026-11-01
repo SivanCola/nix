@@ -3866,7 +3866,7 @@ export function ProviderEditor({
     setModelContextWindows(current => ({...current, [draft.model]:draft.contextWindow}));
     setModelOverrides(current => {
       const previous = current.find(item => item.model === draft.model);
-      return [...current.filter(item => item.model !== draft.model), {...previous, model:draft.model, reasoningProtocol:previous?.reasoningProtocol ?? "", supportedEfforts:draft.supportedEfforts, defaultEffort:draft.defaultEffort, vision:draft.vision, maxOutputTokens:draft.maxOutputTokens}];
+      return [...current.filter(item => item.model !== draft.model), {...previous, model:draft.model, reasoningProtocol:previous?.reasoningProtocol ?? "", supportedEfforts:draft.supportedEfforts, defaultEffort:draft.defaultEffort, vision:draft.vision, webSearch:draft.webSearch, maxOutputTokens:draft.maxOutputTokens}];
     });
     setModelDialog(null);
   };
@@ -4061,7 +4061,8 @@ export function ProviderEditor({
       {modelDialog !== null && <Suspense fallback={null}><ProviderModelDialog
         baseURL={effectiveRequestUrl} candidates={modelCandidateNames} contextDefault={Number(ctx) || undefined}
         effortOptions={Array.from(new Set([...(modelCapabilities.find(item=>item.model === modelDialog)?.reasoning?.options ?? []).map(option=>option.id), ...(modelOverrides.find(item=>item.model === modelDialog)?.supportedEfforts ?? supportedEfforts ?? [])])).filter(Boolean)}
-        initial={modelDialog ? (() => { const override = modelOverrides.find(item=>item.model === modelDialog); return {model:modelDialog, contextWindow:modelContextWindows[modelDialog] ?? "", maxOutputTokens:override?.maxOutputTokens ?? 0, vision:override?.vision ?? null, supportedEfforts:override?.supportedEfforts ?? [], defaultEffort:override?.defaultEffort ?? ""}; })() : undefined}
+        initial={modelDialog ? (() => { const override = modelOverrides.find(item=>item.model === modelDialog); return {model:modelDialog, contextWindow:modelContextWindows[modelDialog] ?? "", maxOutputTokens:override?.maxOutputTokens ?? 0, vision:override?.vision ?? null, webSearch:override?.webSearch ?? null, supportedEfforts:override?.supportedEfforts ?? [], defaultEffort:override?.defaultEffort ?? ""}; })() : undefined}
+        webSearchSupported={effectiveServerWebSearchCapability || effectiveKind === "anthropic" || effectiveKind === "responses"} webSearchDefault={effectiveServerWebSearchCapability && webSearch}
         capability={modelCapabilities.find(item=>item.model === modelDialog)} busy={busy || fetchingModels}
         onClose={()=>setModelDialog(null)} onApply={applyModelDetails} onDelete={deleteModel}/></Suspense>}
       <ProviderEditorModelPicker
@@ -4732,7 +4733,7 @@ function AboutSection({
         </button>
       </SettingsField>
       <SettingsField
-        className="settings-field--wide-copy settings-field--stacked"
+        className="settings-field--wide-copy settings-field--stacked settings-field--feedback"
         label={t("feedback.title")}
         hint={t("feedback.subtitle")}
       >
