@@ -20,13 +20,13 @@ Homebrew 当前安装的是 **CLI**，引用 `vVERSION` 下的小写 `deepzora-O
 
 1. Review and merge the release notes on protected `main`.
 2. Run **Prepare release candidate** with the reviewed version. It freezes source identity, builds current platforms, signs desktop payloads, verifies native startup and installers, and seals artifact hashes and provenance.
-3. Run `./scripts/release-stable.sh CANDIDATE_ID` from an authenticated maintainer checkout. Review the immutable candidate and approve its `release` environment.
+3. Run `./scripts/release-stable.sh CANDIDATE_ID` from an authenticated maintainer checkout. Review the immutable candidate, then run `./scripts/release-approve.sh CANDIDATE_ID` at a terminal. It waits for verification, shows the run, asks you to type the candidate ID, and confirms that GitHub recorded the `release` approval. Approving in the GitHub UI remains equivalent.
 4. **Publish release candidate** creates CLI `vX.Y.Z`, npm `npm-vX.Y.Z`, and Desktop `desktop-vX.Y.Z` tags atomically, then publishes the exact sealed files.
 5. Require successful public artifact, package, pointer, and Homebrew verification and retain the publication ledger.
 
 1. 在受保护的 `main` 审阅并合并发布记录。
 2. 使用已审阅版本运行 **Prepare release candidate**，固定来源，构建当前平台、签名桌面产物、验证原生启动和安装器，封存哈希与来源证明。
-3. 维护者运行 `./scripts/release-stable.sh CANDIDATE_ID`，审阅不可变候选并批准 `release` 环境。
+3. 维护者运行 `./scripts/release-stable.sh CANDIDATE_ID`，审阅不可变候选，然后在终端运行 `./scripts/release-approve.sh CANDIDATE_ID`。它会等待核对完成、显示运行信息、要求输入候选 ID，并确认 GitHub 已记录 `release` 批准。在 GitHub 网页上批准的效果相同。
 4. **Publish release candidate** 原子创建 CLI、npm 和 Desktop 三个正式标签，发布封存文件。
 5. 确认公开产物、npm 包、更新指针和 Homebrew 验证成功，保存发布账本。
 
