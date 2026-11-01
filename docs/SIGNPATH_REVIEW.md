@@ -68,7 +68,7 @@ claims that all bundled dependencies have already been approved.
 
 This is a configuration proposal, not a ready-to-use SignPath integration.
 Signed Windows releases use Certum, and no `.signpath` configuration exists.
-The maintainer approved temporary unsigned Windows v0.0.1 and v0.0.2 releases,
+The maintainer approved temporary unsigned Windows v0.0.1, v0.0.2 and v0.0.3 releases,
 disclosed in the signing policy and release notes. It retains Minisign integrity and native
 acceptance; it is not a Foundation-signed build.
 Its recursive all-PE signing list must not be reused unchanged for Foundation
