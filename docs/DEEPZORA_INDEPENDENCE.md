@@ -284,11 +284,13 @@ All releases and update artifacts use `SivanCola/deepzora`. The CLI reads
 `cli-latest.json` from GitHub latest, falling back to the repository's Releases
 API. Desktop reads `latest.json` from the same GitHub latest release. Stable
 promotion validates the Desktop manifest, attaches both pointers to the matching
-CLI release, and marks that release latest. Recovery cannot move latest backward
-or overwrite a conflicting immutable manifest.
+CLI release, and attaches the CLI pointer to the Desktop release before marking
+Desktop latest. The repository sidebar therefore opens the Desktop downloads.
+Recovery cannot move latest backward or overwrite a conflicting immutable manifest.
 
 发布与更新不依赖上游域名、R2 或 Cloudflare。完成正式发布后，GitHub latest 同时
-提供 CLI 与桌面更新指针；恢复旧版本不会回退最新版本或覆盖冲突文件。
+提供 CLI 与桌面更新指针，仓库首页默认展示 Desktop Release；恢复旧版本不会回退
+最新版本或覆盖冲突文件。
 
 `GITHUB_TOKEN` is provided by GitHub automatically. Optional maintenance secrets
 are `DEEPSEEK_API_KEY` (live E2E and AI issue labels), `ACKNOWLEDGMENTS_TOKEN`
