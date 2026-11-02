@@ -26220,6 +26220,16 @@
           }
         },
         {
+          "name": "webSearch",
+          "optional": true,
+          "type": {
+            "elem": {
+              "kind": "boolean"
+            },
+            "kind": "nullable"
+          }
+        },
+        {
           "name": "contextWindow",
           "optional": true,
           "type": {

@@ -1105,6 +1105,10 @@ func cloneModelOverrideMap(in map[string]ProviderModelOverride) map[string]Provi
 			vision := *v.Vision
 			v.Vision = &vision
 		}
+		if v.WebSearch != nil {
+			webSearch := *v.WebSearch
+			v.WebSearch = &webSearch
+		}
 		out[k] = v
 	}
 	return out

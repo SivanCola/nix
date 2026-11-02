@@ -15,6 +15,17 @@ function canonical(path) {
 }
 const within = (path, root) => path.startsWith(`${root}${sep}`);
 
+// System daemons can run from directories the runner cannot read (for example
+// /private/var/db/com.apple.xpc.roleaccountd.staging). Such a path cannot be
+// inside a mount or staging copy we created, so its literal path is enough.
+export function processExecutable(path) {
+  if (!path.startsWith("/")) return path;
+  try { return canonical(path); } catch (error) {
+    if (error.code === "EACCES" || error.code === "EPERM") return path;
+    throw error;
+  }
+}
+
 function command(file, args, options = {}) {
   const result = spawnSync(file, args, { encoding: "utf8", maxBuffer: 16 * 1024 * 1024, ...options });
   if (result.error || result.status !== 0) {
@@ -39,7 +50,7 @@ export function macOSDriver(hdiutil = "/usr/bin/hdiutil") {
         const match = /^\s*(\d+)\s+(.+)$/.exec(line);
         if (!match) throw new Error(`Cannot parse process inventory: ${line}`);
         const path = match[2];
-        if (!paths.has(path)) paths.set(path, path.startsWith("/") ? canonical(path) : path);
+        if (!paths.has(path)) paths.set(path, processExecutable(path));
         return { pid: Number(match[1]), executable: paths.get(path) };
       });
     },

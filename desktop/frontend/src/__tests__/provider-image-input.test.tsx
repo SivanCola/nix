@@ -64,6 +64,33 @@ await render(<ProviderEditor key="legacy-backend" initial={{ ...initial, modelCa
 await choose("auto");
 assert(el.textContent?.includes("Image capability unknown"), "auto must not reuse the previous explicit override as its fallback");
 
+const nativeSearch = () => [...document.querySelectorAll<HTMLLabelElement>("dialog aside label")].find(label => label.textContent === "Native search")!.querySelector("input")!;
+const submitDialog = async () => { await act(async()=>document.querySelector('dialog form')!.dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}))); };
+
+await render(editor("chat-completions"));
+await openModel();
+assert.equal(nativeSearch().disabled, true, "chat completions cannot declare native search");
+assert.equal(nativeSearch().checked, false);
+assert(document.querySelector("dialog")!.textContent?.includes("Chat Completions has no native search"));
+await act(async () => { (document.querySelector("dialog header button") as HTMLButtonElement).click(); });
+
+const searchSaved: ProviderView[] = [];
+await render(<ProviderEditor key="responses-search" initial={{ ...initial, kind: "responses", requestUrl: "https://relay.test/v1/responses", modelOverrides: [{ ...initial.modelOverrides![0], webSearch: null }] }} kinds={["responses"]} busy={false} onSave={(p) => { searchSaved.push(p); }} onCancel={() => {}} />);
+await openModel();
+assert.equal(nativeSearch().disabled, false, "responses can opt one model into native search");
+assert.equal(nativeSearch().checked, false, "automatic inherits the disabled connection");
+await act(async () => { nativeSearch().click(); });
+assert.equal(nativeSearch().checked, true);
+await submitDialog();
+await click("Save changes");
+assert.equal(searchSaved[0].modelOverrides?.[0].webSearch, true);
+assert.equal(searchSaved[0].modelOverrides?.[0].contextWindow, 123456, "search override keeps the other model fields");
+await openModel();
+await act(async () => { (document.querySelector("dialog aside > button") as HTMLButtonElement).click(); });
+await submitDialog();
+await click("Save changes");
+assert.equal(searchSaved[1].modelOverrides?.[0].webSearch ?? null, null, "restore returns the model to the connection value");
+
 // A controlled Promise completes only after unmount. It must not modify the
 // replacement editor or enable a model from the previous provider request.
 let complete!: (v: ProviderModelCapabilityView[]) => void;
@@ -90,7 +117,7 @@ assert.equal(mergeImageInputModes(initial.modelOverrides, initial.models, { "REL
 // The real dialog enforces a backend hard block as well as the primitive control.
 await render(<ProviderEditor key="blocked" initial={{...initial,modelCapabilities:[{...unknown,imageInputEnableAllowed:false,state:"unsupported"}]}} kinds={["openai"]} busy={false} onSave={()=>{}} onCancel={()=>{}}/>);
 await openModel();
-assert.equal(document.querySelectorAll('dialog aside input:disabled').length,5,"blocked image input cannot be enabled");
+assert.equal(document.querySelectorAll('dialog aside input:disabled').length,6,"blocked image input cannot be enabled");
 await act(async () => root.unmount());
 dom.window.close();
 console.log("PASS provider image input: draft/save/auto/cancel/disabled/hard-limit/stale discovery");

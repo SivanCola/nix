@@ -87,6 +87,12 @@ jq -e \
 existing_dir="$work_dir/existing"
 mkdir -p "$existing_dir"
 while IFS= read -r name; do
+	# Stable promotion owns this updater document after Desktop publication.
+	# It is not part of the sealed Desktop package set; promotion verifies it
+	# against the immutable CLI release on every recovery.
+	if [ "$name" = "cli-latest.json" ]; then
+		continue
+	fi
 	if [ -z "$name" ] || [ ! -f "$asset_dir/$name" ]; then
 		echo "Desktop GitHub release has unexpected asset: ${name:-<empty>}" >&2
 		exit 1
@@ -106,5 +112,6 @@ done < <(find "$asset_dir" -mindepth 1 -maxdepth 1 -type f -print0)
 published_dir="$work_dir/published"
 mkdir -p "$published_dir"
 gh release download "$tag" -R "$repository" --dir "$published_dir"
+rm -f -- "$published_dir/cli-latest.json"
 bash "$directory_verifier" "$asset_dir" "$published_dir"
 echo "Desktop GitHub release verified: tag=$tag assets=$(find "$asset_dir" -mindepth 1 -maxdepth 1 -type f | wc -l | tr -d ' ')"

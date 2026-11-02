@@ -86,7 +86,7 @@ deepzora run "Fix the failing tests and explain the changes"
 deepzora -p "Summarize this repository" --output-format json
 ```
 
-Native CLI archives are also available in the [latest CLI release](https://github.com/SivanCola/deepzora/releases/latest). See the [CLI reference](docs/CLI.md) for session resume, model selection and automation.
+Native CLI archives are also available in the [CLI releases](https://github.com/SivanCola/deepzora/releases?q=%22Deepzora%20CLI%22&expanded=true). See the [CLI reference](docs/CLI.md) for session resume, model selection and automation.
 
 ## Desktop downloads
 

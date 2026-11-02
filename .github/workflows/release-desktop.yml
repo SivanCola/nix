@@ -846,7 +846,7 @@ jobs:
     - name: Install and smoke-test exact Windows installer
       shell: pwsh
       run: |
-        $installer = @(Get-ChildItem -LiteralPath "$env:RUNNER_TEMP/windows-bundle/files" -Filter '*installer.exe' -File)
+        $installer = @(Get-ChildItem -LiteralPath "$env:RUNNER_TEMP/windows-bundle/files" -Filter '*-Setup.exe' -File)
         if ($installer.Count -ne 1) { throw "Expected one signed installer, found $($installer.Count)" }
         ./release-control/scripts/test-windows-installer-startup.ps1 `
           -InstallerPath $installer[0].FullName `
@@ -869,7 +869,7 @@ jobs:
       shell: pwsh
       run: |
         $bundle = "$env:RUNNER_TEMP/windows-bundle/files"
-        $installer = @(Get-ChildItem -LiteralPath $bundle -Filter '*installer.exe' -File)
+        $installer = @(Get-ChildItem -LiteralPath $bundle -Filter '*-Setup.exe' -File)
         if ($installer.Count -ne 1) { throw "Expected one signed installer, found $($installer.Count)" }
         @{ schema = 1; kind = "windows-${{ matrix.arch }}"; status = 'passed'; version = "${{ needs.resolve.outputs.version }}"; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $installer[0].FullName).Hash.ToLowerInvariant() } |
           ConvertTo-Json | Set-Content -LiteralPath "$env:RUNNER_TEMP/windows-${{ matrix.arch }}.json" -Encoding utf8

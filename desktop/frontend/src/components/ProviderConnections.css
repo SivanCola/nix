@@ -231,7 +231,7 @@
 :root .settings-page:has(.model-access-page:not([hidden])) > .settings-page__header {
   display: none;
 }
-:root .model-access-page > .settings-section {
+:root .settings-center .model-access-page > .settings-section {
   margin: 0;
   padding: 0;
   border: 0;

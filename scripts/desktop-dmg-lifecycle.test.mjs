@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
-import { cleanupStaging, detachImage } from "./desktop-dmg-lifecycle.mjs";
+import { cleanupStaging, detachImage, processExecutable } from "./desktop-dmg-lifecycle.mjs";
 
 const mount = "/Volumes/dmg.test with spaces";
 const bundle = `${mount}/Deepzora.app`;
@@ -122,4 +125,17 @@ test("rescans catch a backend started while its shell is exiting", async () => {
   f.driver.signal = (pid, sig) => { signal(pid, sig); if (pid === 12) backendLive = false; };
   await detachImage(mount, {}, f.driver);
   assert.deepEqual(f.events, [["SIGTERM", 10], ["SIGTERM", 12], ["detach", mount]]);
+});
+
+test("process inventory keeps unreadable system executables instead of failing", t => {
+  if (process.getuid?.() === 0) return t.skip("root can read every directory");
+  const root = realpathSync(mkdtempSync(join(tmpdir(), "deepzora-dmg-proc-")));
+  const locked = join(root, "staging");
+  mkdirSync(locked);
+  writeFileSync(join(locked, "exec"), "");
+  chmodSync(locked, 0o000);
+  t.after(() => { chmodSync(locked, 0o700); rmSync(root, { recursive: true, force: true }); });
+  assert.equal(processExecutable(join(locked, "exec")), join(locked, "exec"));
+  assert.equal(processExecutable(join(root, "missing", "exec")), join(root, "missing", "exec"));
+  assert.equal(processExecutable("launchd"), "launchd");
 });

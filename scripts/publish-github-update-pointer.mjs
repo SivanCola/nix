@@ -81,7 +81,7 @@ function uploadImmutable(tag, file, directory) {
     gh("release", "upload", tag, file, "--repo", repository);
   } else {
     assert.equal(assets.length, 1, `duplicate ${name}`);
-    const existing = path.join(directory, `existing-${name}`);
+    const existing = path.join(directory, `existing-${tag}-${name}`);
     gh("release", "download", tag, "--repo", repository, "--pattern", name, "--output", existing);
     const digest = target => createHash("sha256").update(readFileSync(target)).digest("hex");
     assert.equal(digest(file), digest(existing), `immutable ${name} conflicts with the published release`);
@@ -112,10 +112,13 @@ export function publish(version, sourceSHA) {
     const cli = api(`releases/tags/${cliTag}`);
     writeFileSync(cliPath, `${JSON.stringify(cliPointer(cli, version))}\n`);
     uploadImmutable(cliTag, cliPath, directory);
+    // The repository's public entry points at Desktop. Keep the CLI updater
+    // document there too, so both installed products can use releases/latest.
+    uploadImmutable(desktopTag, cliPath, directory);
     const current = latestRelease();
     if (shouldAdvance(version, current?.tag_name)) {
-      gh("release", "edit", cliTag, "--repo", repository, "--latest");
-      assert.equal(latestRelease().tag_name, cliTag);
+      gh("release", "edit", desktopTag, "--repo", repository, "--latest");
+      assert.equal(latestRelease().tag_name, desktopTag);
     }
   } finally {
     rmSync(directory, { recursive: true, force: true });

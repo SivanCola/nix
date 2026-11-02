@@ -24,3 +24,4 @@ gh api -X POST "repos/$repository/actions/workflows/release-promote.yml/dispatch
 
 echo "Dispatched $operation for $candidate_id on protected main."
 echo "The workflow verifies the sealed candidate, then requests one release approval."
+echo "Approve it with: ./scripts/release-approve.sh $candidate_id"

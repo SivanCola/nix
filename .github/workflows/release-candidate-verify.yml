@@ -76,12 +76,15 @@ jobs:
           unzip -q "$RUNNER_TEMP/payload.zip" -d payload
           # One provenance check per payload file; each is a network round trip,
           # so they run eight at a time and any single failure fails the step.
+          # Concurrent verifiers race on Sigstore's TUF initialization on hosted
+          # runners, so the trusted root is fetched once and each worker reads it.
+          gh attestation trusted-root > "$RUNNER_TEMP/trusted_root.jsonl"
           signer_digest="$CONTROL_SHA"
           find payload -type f -print0 | xargs -0 -P 8 -I{} \
             gh attestation verify {} --repo "$GITHUB_REPOSITORY" \
             --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/release-candidate.yml" \
             --signer-digest "$signer_digest" --source-ref refs/heads/main \
-            --deny-self-hosted-runners >/dev/null
+            --deny-self-hosted-runners --custom-trusted-root "$RUNNER_TEMP/trusted_root.jsonl" >/dev/null
           node scripts/release-candidate.mjs verify-rehearsal payload record/record.json >/dev/null
           git fetch origin main
           git merge-base --is-ancestor "${{ steps.inspected.outputs.source_sha }}" origin/main
