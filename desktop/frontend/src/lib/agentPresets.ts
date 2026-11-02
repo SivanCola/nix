@@ -5,6 +5,8 @@ export interface AgentPreset {
   id: string;
   name: string;
   description: string;
+  /** Display-only glyph key; unknown or absent keys render the default bot. */
+  icon?: string;
   body: string;
   keepCoding: boolean;
   complete: boolean;
@@ -36,7 +38,7 @@ export function agentPresetTools(text: string): string[] {
   return [...new Set(text.split(/[,\r\n]+/u).map(tool => tool.trim()).filter(Boolean))];
 }
 
-export function renderAgentPreset(preset: Pick<AgentPreset, "name" | "description" | "body" | "keepCoding" | "complete" | "includeRuntimeContext" | "tools">): string {
+export function renderAgentPreset(preset: Pick<AgentPreset, "name" | "description" | "icon" | "body" | "keepCoding" | "complete" | "includeRuntimeContext" | "tools">): string {
   // JSON scalars are valid YAML. Quoting every value prevents names and tool
   // patterns from becoming YAML keys, aliases, booleans or frontmatter fences.
   const fields = [
@@ -44,6 +46,7 @@ export function renderAgentPreset(preset: Pick<AgentPreset, "name" | "descriptio
     `description: ${JSON.stringify(preset.description.trim())}`,
     `keep-coding-instructions: ${preset.keepCoding}`,
   ];
+  if (preset.icon) fields.push(`icon: ${JSON.stringify(preset.icon)}`);
   if (preset.complete) fields.push("complete: true");
   if (preset.includeRuntimeContext === false) fields.push("include-runtime-context: false");
   if (preset.tools !== null) fields.push(`tools: ${JSON.stringify(preset.tools)}`);

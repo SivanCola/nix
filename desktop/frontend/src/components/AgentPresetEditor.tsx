@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { AGENT_PRESET_ID_PATTERN, agentPresetTools, type AgentPreset, type WritableAgentPresetScope } from "../lib/agentPresets";
+import { AGENT_PRESET_ID_PATTERN, type AgentPreset, type WritableAgentPresetScope } from "../lib/agentPresets";
 import { useT } from "../lib/i18n";
+import { AGENT_PRESET_ICONS, AgentPresetIcon, DEFAULT_AGENT_PRESET_ICON } from "./AgentPresetIcon";
+import { AgentPresetToolPicker } from "./AgentPresetToolPicker";
 import { SettingsField, SettingsSection } from "./SettingsForm";
 import { SettingsOptions } from "./SettingsOptions";
 import { SettingsSelect } from "./SettingsSelect";
 
-export type AgentPresetDraft = Pick<AgentPreset, "id" | "name" | "description" | "body" | "keepCoding" | "complete" | "includeRuntimeContext" | "tools"> & { scope: WritableAgentPresetScope };
+export type AgentPresetDraft = Pick<AgentPreset, "id" | "name" | "description" | "icon" | "body" | "keepCoding" | "complete" | "includeRuntimeContext" | "tools"> & { scope: WritableAgentPresetScope };
 
 export function AgentPresetEditor({ initial, editing, presets, busy, onSave, onCancel }: {
   initial: AgentPresetDraft;
@@ -19,7 +21,8 @@ export function AgentPresetEditor({ initial, editing, presets, busy, onSave, onC
   const prefix = useId();
   const nameRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState(initial);
-  const [toolText, setToolText] = useState(initial.tools?.join("\n") ?? "");
+  // Unchecking "restrict" keeps the list so re-checking restores it.
+  const [lastTools, setLastTools] = useState(initial.tools ?? []);
   const id = draft.id.trim();
   const idInvalid = !AGENT_PRESET_ID_PATTERN.test(id) || id === "default";
   const idTaken = !editing && presets.some(preset => preset.id === id && preset.scope === draft.scope);
@@ -30,7 +33,7 @@ export function AgentPresetEditor({ initial, editing, presets, busy, onSave, onC
   useEffect(() => { nameRef.current?.focus(); }, []);
 
   return <form className="agent-preset-editor" aria-label={t(editing ? "agentPresets.edit" : "agentPresets.new")}
-    onSubmit={event => { event.preventDefault(); if (!invalid && !busy) void onSave({ ...draft, id, tools: draft.tools === null ? null : agentPresetTools(toolText) }); }}>
+    onSubmit={event => { event.preventDefault(); if (!invalid && !busy) void onSave({ ...draft, id }); }}>
     <button className="subagents-form-back" type="button" disabled={busy} onClick={onCancel}>{t("agentPresets.back")}</button>
     <SettingsSection title={<h2>{t(editing ? "agentPresets.edit" : "agentPresets.new")}</h2>} description={t("agentPresets.editHint")}>
       <SettingsField label={<label htmlFor={`${prefix}-name`}>{t("agentPresets.name")}</label>}>
@@ -46,6 +49,16 @@ export function AgentPresetEditor({ initial, editing, presets, busy, onSave, onC
       </SettingsField>
       <SettingsField label={<label htmlFor={`${prefix}-description`}>{t("agentPresets.description")}</label>}>
         <input id={`${prefix}-description`} className="mem-input set-grow" value={draft.description} disabled={busy} onChange={event => patch({ description: event.target.value })} />
+      </SettingsField>
+      <SettingsField label={t("agentPresets.icon")} hint={t("agentPresets.iconHint")}>
+        <div className="agent-preset-editor__icons" role="radiogroup" aria-label={t("agentPresets.icon")}>
+          {Object.keys(AGENT_PRESET_ICONS).map(key => {
+            const on = (draft.icon || DEFAULT_AGENT_PRESET_ICON) === key;
+            return <button type="button" key={key} role="radio" aria-checked={on} aria-label={key} title={key} disabled={busy}
+              className={`agent-preset-editor__icon${on ? " agent-preset-editor__icon--on" : ""}`}
+              onClick={() => patch({ icon: key === DEFAULT_AGENT_PRESET_ICON ? "" : key })}><AgentPresetIcon icon={key} /></button>;
+          })}
+        </div>
       </SettingsField>
       <SettingsField label={t("agentPresets.scope")} hint={t("agentPresets.scopeHint")}>
         <SettingsSelect value={draft.scope} disabled={editing || busy} aria-label={t("agentPresets.scope")}
@@ -75,14 +88,13 @@ export function AgentPresetEditor({ initial, editing, presets, busy, onSave, onC
       </SettingsField>
       <SettingsField label={t("agentPresets.tools")} hint={t("agentPresets.toolsHint")} stacked>
         <label className="agent-preset-editor__restrict"><input type="checkbox" checked={draft.tools !== null} disabled={busy}
-          onChange={event => patch({ tools: event.target.checked ? agentPresetTools(toolText) : null })} />{t("agentPresets.restrictTools")}</label>
+          onChange={event => patch({ tools: event.target.checked ? lastTools : null })} />{t("agentPresets.restrictTools")}</label>
         {draft.tools !== null && <>
-          <label className="sr-only" htmlFor={`${prefix}-tools`}>{t("agentPresets.toolList")}</label>
-          <textarea id={`${prefix}-tools`} className="mem-textarea" rows={4} value={toolText} disabled={busy} spellCheck={false}
-            placeholder={"read_file\ngrep\nmcp:research"} onChange={event => setToolText(event.target.value)} aria-describedby={`${prefix}-tools-hint`} />
+          <AgentPresetToolPicker id={`${prefix}-tools`} value={draft.tools} disabled={busy}
+            onChange={tools => { setLastTools(tools); patch({ tools }); }} />
           <div className="agent-preset-editor__tools-footer">
-            <span id={`${prefix}-tools-hint`} className="set-hint" role="status">{t(agentPresetTools(toolText).length ? "agentPresets.toolListHint" : "agentPresets.noTools")}</span>
-            <button type="button" className="btn btn--small" disabled={busy || !toolText} onClick={() => setToolText("")}>{t("agentPresets.clearTools")}</button>
+            <span id={`${prefix}-tools-hint`} className="set-hint" role="status">{t(draft.tools.length ? "agentPresets.toolListHint" : "agentPresets.noTools")}</span>
+            <button type="button" className="btn btn--small" disabled={busy || !draft.tools.length} onClick={() => { setLastTools([]); patch({ tools: [] }); }}>{t("agentPresets.clearTools")}</button>
           </div>
         </>}
       </SettingsField>

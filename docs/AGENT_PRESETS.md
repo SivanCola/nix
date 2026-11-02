@@ -62,6 +62,7 @@ Supported frontmatter fields:
 | --- | --- |
 | `name` | Display name; defaults to the file ID. |
 | `description` | Description shown in the picker and management page. |
+| `icon` | Optional display glyph for the Desktop list and composer picker: `bot` (default), `code`, `terminal`, `book-open`, `pen`, `search`, `bug`, `flask`, `shield`, `palette`, `rocket`, `brain`, `sparkles`, `database`, `globe`, or `school`. Unknown keys show the default glyph; changing the icon does not rebuild a session. |
 | `keep-coding-instructions` | Defaults to `true`: append the body to the base persona. `false` replaces that persona; a nonempty body is required. Core policies still apply unless `complete` is `true`. |
 | `complete` | Defaults to `false`. `true` uses a nonempty body as the entire system prompt, suppressing core policies, standing documents, skill instructions, and v4 system text. Takes precedence over `keep-coding-instructions`. |
 | `include-runtime-context` | Defaults to `true`. `false` reduces runtime context to the working directory (cwd) only, including in complete mode. |
