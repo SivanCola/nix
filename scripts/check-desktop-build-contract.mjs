@@ -20,7 +20,7 @@ const landingPage = read("docs/index.html");
 const desktopBuildScript = read("scripts/desktop-build.sh");
 const publishDesktopReleaseScript = read("scripts/publish-desktop-github-release.sh");
 
-const cliReleaseURL = "https://github.com/SivanCola/deepzora/releases/latest";
+const cliReleaseURL = "https://github.com/SivanCola/deepzora/releases?q=%22Deepzora%20CLI%22&expanded=true";
 const desktopReleaseURL = "https://github.com/SivanCola/deepzora/releases?q=%22Deepzora%20Desktop%22&expanded=true";
 
 // Execute the production shell wrapper to check the identity passed to packaging.
