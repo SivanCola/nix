@@ -90,7 +90,7 @@ deepzora -p "概述这个仓库的结构" --output-format json
 
 ## 桌面版下载
 
-**[下载 Deepzora 桌面版 →](https://github.com/SivanCola/deepzora/releases?q=%22Deepzora%20Desktop%22&expanded=true)**
+**[加速下载 Deepzora 桌面版 →](https://downloads.deepzora.app/)** · [GitHub 下载与发布说明](https://github.com/SivanCola/deepzora/releases?q=%22Deepzora%20Desktop%22&expanded=true)
 
 在发布页选择适合你系统和架构的安装包。可用安装包、安装说明及各版本的签名状态以对应发布说明为准，另见[代码签名政策](CODE_SIGNING_POLICY.zh-CN.md)。
 
