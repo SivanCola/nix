@@ -7,6 +7,7 @@ required=(
 	.github/workflows/release-candidate.yml
 	.github/workflows/release-candidate-verify.yml
 	.github/workflows/release-promote.yml
+	.github/workflows/release-mirror.yml
 	.github/workflows/release-desktop.yml
 	.github/release-signing.yml
 	npm/publish-candidate.mjs
@@ -18,6 +19,7 @@ required=(
 	scripts/install-nsis.ps1
 	scripts/package-windows-desktop.sh
 	scripts/release-candidate.mjs
+	scripts/release-r2-mirror.mjs
 	scripts/release-windows-policy.mjs
 	scripts/release-candidate-tags.sh
 	scripts/test-release-control-contracts.sh
@@ -56,6 +58,7 @@ for file in \
 done
 
 node --check "$root/scripts/release-candidate.mjs"
+node --check "$root/scripts/release-r2-mirror.mjs"
 node --check "$root/scripts/desktop-downloads.mjs"
 node --check "$root/scripts/verify-release-artifact-archive.mjs"
 node --check "$root/scripts/resolve-release-candidate.mjs"

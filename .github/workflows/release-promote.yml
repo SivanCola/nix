@@ -365,6 +365,21 @@ jobs:
           overwrite: true
           retention-days: 90
 
+  mirror:
+    name: mirror verified downloads to R2
+    needs: [preflight, postflight]
+    if: vars.ENABLE_R2_DOWNLOADS == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/release-mirror.yml
+    with:
+      version: ${{ needs.preflight.outputs.version }}
+    secrets:
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+
   metrics:
     name: record publication timing
     needs: [preflight, authorize, activate, cli, npm, desktop, postflight]

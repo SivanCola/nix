@@ -90,7 +90,7 @@ Native CLI archives are also available in the [CLI releases](https://github.com/
 
 ## Desktop downloads
 
-**[Download Deepzora Desktop →](https://github.com/SivanCola/deepzora/releases?q=%22Deepzora%20Desktop%22&expanded=true)**
+**[Download Deepzora Desktop →](https://downloads.deepzora.app/)** · [GitHub downloads and release notes](https://github.com/SivanCola/deepzora/releases?q=%22Deepzora%20Desktop%22&expanded=true)
 
 Choose the package for your operating system and architecture on the release page. Available packages, installation notes and version-specific signing status are listed with each release; see also the [code signing policy](CODE_SIGNING_POLICY.md).
 
