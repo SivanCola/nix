@@ -6,6 +6,7 @@ import { agentPresetError, nextAgentPresetCopyID, notifyAgentPresetsChanged, ren
 import { useAgentPresets } from "../lib/useAgentPresets";
 import { useT } from "../lib/i18n";
 import { AgentPresetEditor, type AgentPresetDraft } from "./AgentPresetEditor";
+import { AgentPresetIcon } from "./AgentPresetIcon";
 import { ErrorMessage } from "./ErrorMessage";
 import { InlineConfirmButton } from "./InlineConfirmButton";
 import { SettingsSection } from "./SettingsForm";
@@ -57,7 +58,7 @@ export function AgentPresetsSettingsPage({ tabId, workspaceKey }: { tabId: strin
       }} /> : <SettingsSection title={<h2>{t("settings.tab.agentPresets")}</h2>} description={<p>{t("agentPresets.hint")}</p>}
       actions={<><button className="btn btn--small" type="button" disabled={busy || loading} onClick={() => void reload()} aria-label={t("agentPresets.refresh")}><RefreshCw size={14} aria-hidden="true" /></button>
         <button ref={addRef} className="btn btn--small" type="button" disabled={busy || !view} onClick={() => {
-          setMutationError(null); setEditor({ editing: false, draft: { id: "", name: "", description: "", body: "", keepCoding: true, complete: false, includeRuntimeContext: true, tools: null, scope: "user" } });
+          setMutationError(null); setEditor({ editing: false, draft: { id: "", name: "", description: "", icon: "", body: "", keepCoding: true, complete: false, includeRuntimeContext: true, tools: null, scope: "user" } });
         }}><Plus size={14} aria-hidden="true" />{t("agentPresets.new")}</button></>}>
       {!view && loading && <div className="empty" role="status">{t("agentPresets.loading")}</div>}
       {view && !view.presets.length && <div className="mem-empty" role="status">{t("agentPresets.empty")}</div>}
@@ -78,6 +79,7 @@ function AgentPresetRow({ preset, busy, current, onCopy, onEdit, onDelete }: {
   const name = builtin && preset.id === "default" ? t("agentPresets.default") : preset.name;
   return <article className="cap-skill-card agent-preset-row" aria-label={name}>
     <div className="agent-preset-row__head">
+      <span className="agent-preset-row__icon"><AgentPresetIcon icon={preset.icon} /></span>
       <h3>{name}</h3><code>{preset.id}</code>
       <span className="cap-skill-badge">{t(`agentPresets.scope.${preset.scope}`)}</span>
       {current && <span className="cap-skill-badge">{t("agentPresets.current")}</span>}

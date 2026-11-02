@@ -34,6 +34,8 @@ const stub = installDesktopHostStub({
     saves.push({ tabId, scope, id, content });
     return { ...review, id };
   },
+  AvailableSubagentTools: async () => [{ name: "grep", description: "Search file contents" }, { name: "read_file", description: "Read a file" }],
+  MCPServers: async () => [{ name: "github" }],
   DeleteAgentPreset: async (_tabId: string, _scope: string, id: string) => { deletes.push(id); view = { ...view, presets: view.presets.filter(preset => preset.id !== id) }; },
 });
 const rootEl = document.getElementById("root")!;
@@ -150,6 +152,33 @@ assert.match(saves[3].content, /^complete: true$/mu);
 assert.match(saves[3].content, /^include-runtime-context: false$/mu);
 assert.match(saves[3].content, /^keep-coding-instructions: false$/mu);
 assert.match(saves[3].content, /^tools: \[\]$/mu, "copy retains explicit empty tools with prompt options");
+
+await click(button("New preset"));
+await fill("Name", "Researcher");
+await fill("ID", "researcher");
+await click(button("search"));
+assert.equal(button("search").getAttribute("aria-checked"), "true", "icon choice is a radio");
+await click(checkbox("Restrict available tools"));
+await click(button("Choose tools (0 selected)"));
+const option = (text: string) => {
+  const found = [...document.querySelectorAll('[role="option"]')].find(item => item.textContent!.includes(text));
+  assert.ok(found, `Missing tool option ${text}`); return found;
+};
+assert.deepEqual([...document.querySelectorAll(".settings-select-menu__group")].map(item => item.textContent), ["Built-in tools", "MCP servers"], "tools are grouped by source");
+await click(option("read_file"));
+await click(option("mcp:github"));
+assert.equal(option("read_file").getAttribute("aria-selected"), "true", "picker stays open for multi-select");
+const search = document.querySelector<HTMLInputElement>('input[role="combobox"]')!;
+await act(async () => {
+  Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")!.set!.call(search, "web_*");
+  search.dispatchEvent(new Event("input", { bubbles: true }));
+});
+await click(option('Add "web_*"'));
+assert.ok(button("Remove read_file"), "selected tools render as removable chips");
+await click(button("Save"));
+assert.match(saves[4].content, /^icon: "search"$/mu);
+assert.match(saves[4].content, /^tools: \["read_file","mcp:github","web_\*"\]$/mu, "picked, server and typed entries persist in order");
+
 const reviewRow = rootEl.querySelector('article[aria-label="Review"]')!;
 await click(button("Delete", reviewRow));
 assert.deepEqual(deletes, [], "deletion requires confirmation");
@@ -221,4 +250,4 @@ assert.equal(fetched?.view?.current, "new-tab");
 await act(async () => root.unmount());
 stub.uninstall();
 dom.window.close();
-console.log("Agent preset UI: legacy/new defaults, complete mode validation, independent context, edit/copy retention, empty tools, save errors, confirmed deletion and locked sessions passed.");
+console.log("Agent preset UI: legacy/new defaults, complete mode validation, independent context, edit/copy retention, empty tools, icon and tool picker, save errors, confirmed deletion and locked sessions passed.");

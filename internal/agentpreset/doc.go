@@ -11,6 +11,7 @@
 //
 //	name: Reviewer                 # display name (defaults to the id)
 //	description: Read-only review  # one line for pickers
+//	icon: search                   # display-only glyph key for pickers
 //	keep-coding-instructions: true # false replaces the base prompt
 //	complete: false                # true uses the body as the whole system prompt
 //	include-runtime-context: true  # false keeps only cwd runtime context

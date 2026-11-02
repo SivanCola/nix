@@ -63,6 +63,7 @@ func TestParseRejectsUnsafeDefinitions(t *testing.T) {
 		"bad complete":   "---\ncomplete: sometimes\n---\nbody\n",
 		"bad context":    "---\ninclude-runtime-context: sometimes\n---\nbody\n",
 		"malformed yaml": "---\ntools: [a\n---\nbody\n",
+		"bad icon":       "---\nicon: \"../Bot\"\n---\nbody\n",
 	}
 	for name, text := range cases {
 		if _, err := Parse("x", text); err == nil {
@@ -77,7 +78,7 @@ func TestParseRejectsUnsafeDefinitions(t *testing.T) {
 
 func TestWriteRoundTripsAndRefusesBuiltin(t *testing.T) {
 	dir := t.TempDir()
-	in := Preset{ID: "docs", Name: "Docs writer", Description: "Writes \"docs\"", Body: "Write docs.", KeepCoding: false, Tools: []string{"read_file", "mcp:github"}}
+	in := Preset{ID: "docs", Name: "Docs writer", Description: "Writes \"docs\"", Icon: "book-open", Body: "Write docs.", KeepCoding: false, Tools: []string{"read_file", "mcp:github"}}
 	saved, err := Write(dir, "docs", Render(in))
 	if err != nil {
 		t.Fatal(err)
@@ -86,7 +87,7 @@ func TestWriteRoundTripsAndRefusesBuiltin(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Name != in.Name || got.Description != in.Description || got.Body != in.Body || got.KeepCoding || !reflect.DeepEqual(got.Tools, in.Tools) || got.Path != saved.Path {
+	if got.Name != in.Name || got.Description != in.Description || got.Icon != in.Icon || got.Body != in.Body || got.KeepCoding || !reflect.DeepEqual(got.Tools, in.Tools) || got.Path != saved.Path {
 		t.Fatalf("round trip mismatch:\nin  %+v\ngot %+v", in, got)
 	}
 	if _, err := Write(dir, "default", "body"); !errors.Is(err, ErrBuiltin) {

@@ -1,10 +1,11 @@
 import "./AgentPresets.css";
 import { useEffect, useRef, useState } from "react";
-import { Bot, LockKeyhole } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 import { app } from "../lib/bridge";
 import { agentPresetError } from "../lib/agentPresets";
 import { useAgentPresets } from "../lib/useAgentPresets";
 import { useT } from "../lib/i18n";
+import { AgentPresetIcon } from "./AgentPresetIcon";
 import { ComposerChoice } from "./ComposerChoice";
 import { ErrorMessage } from "./ErrorMessage";
 import { Tooltip } from "./Tooltip";
@@ -55,12 +56,12 @@ export function AgentPresetChoice({ tabId, sessionKey, current, locked = false, 
       <span>
         <ComposerChoice label={loading && !view ? t("agentPresets.loading") : name}
           ariaLabel={`${t("agentPresets.picker")}: ${name}${isLocked ? ` · ${t("agentPresets.locked")}` : ""}`}
-          icon={isLocked ? <LockKeyhole size={16} aria-hidden="true" /> : <Bot size={16} aria-hidden="true" />}
+          icon={isLocked ? <LockKeyhole size={16} aria-hidden="true" /> : <AgentPresetIcon icon={preset?.icon} />}
           showChevron={!isLocked} value={selected} disabled={disabled || pending || loading && !view || isLocked}
           dismissSignal={dismissSignal} onPick={id => void choose(id)}
           options={(view?.presets ?? []).map(item => ({ value: item.id, label: item.id === "default" ? t("agentPresets.default") : item.name,
             description: item.id === "default" ? t("agentPresets.defaultDescription") : item.description,
-            badge: t(`agentPresets.scope.${item.scope}`) }))} />
+            badge: t(`agentPresets.scope.${item.scope}`), icon: <AgentPresetIcon icon={item.icon} /> }))} />
       </span>
     </Tooltip>
     {isLocked && <span className="sr-only">{t("agentPresets.lockedHint")}</span>}

@@ -32,6 +32,7 @@ type Preset struct {
 	ID                    string   `json:"id"`
 	Name                  string   `json:"name"`
 	Description           string   `json:"description"`
+	Icon                  string   `json:"icon,omitempty"`
 	Body                  string   `json:"body"`
 	KeepCoding            bool     `json:"keepCoding"`
 	Complete              bool     `json:"complete"`
@@ -65,6 +66,10 @@ var ErrNotFound = errors.New("agent preset not found")
 var ErrBuiltin = errors.New("the built-in default preset is read-only; copy it to a new id instead")
 
 var idPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,63}$`)
+
+// iconPattern bounds the icon key; which keys render is the authoring
+// surface's choice, so an unknown key falls back to its default glyph.
+var iconPattern = regexp.MustCompile(`^[a-z][a-z0-9-]{0,31}$`)
 
 // ValidID checks the id before it becomes a file name, so no path is ever
 // assembled from untrusted input.
@@ -187,6 +192,7 @@ func reservedErr(id string) error {
 type fileMeta struct {
 	Name                  string    `yaml:"name"`
 	Description           string    `yaml:"description"`
+	Icon                  string    `yaml:"icon"`
 	KeepCoding            *bool     `yaml:"keep-coding-instructions"`
 	Complete              *bool     `yaml:"complete"`
 	IncludeRuntimeContext *bool     `yaml:"include-runtime-context"`
@@ -204,6 +210,12 @@ func Parse(id, text string) (Preset, error) {
 	p := Preset{ID: id, Name: strings.TrimSpace(meta.Name), Description: strings.TrimSpace(meta.Description), Body: strings.TrimSpace(body), KeepCoding: true, IncludeRuntimeContext: true}
 	if p.Name == "" {
 		p.Name = id
+	}
+	if icon := strings.TrimSpace(meta.Icon); icon != "" {
+		if !iconPattern.MatchString(icon) {
+			return Preset{}, fmt.Errorf("icon: %q must be 1-32 lowercase letters, digits or hyphens, starting with a letter", icon)
+		}
+		p.Icon = icon
 	}
 	if meta.KeepCoding != nil {
 		p.KeepCoding = *meta.KeepCoding
@@ -264,6 +276,9 @@ func Render(p Preset) string {
 	fmt.Fprintf(&b, "name: %s\n", yamlScalar(p.Name))
 	if p.Description != "" {
 		fmt.Fprintf(&b, "description: %s\n", yamlScalar(p.Description))
+	}
+	if p.Icon != "" {
+		fmt.Fprintf(&b, "icon: %s\n", yamlScalar(p.Icon))
 	}
 	if !p.KeepCoding {
 		b.WriteString("keep-coding-instructions: false\n")

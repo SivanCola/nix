@@ -57,6 +57,7 @@ tools: [read_file, grep, glob, "mcp:github"]
 | --- | --- |
 | `name` | 显示名称，省略时使用文件 ID。 |
 | `description` | 选择器和管理页中的说明。 |
+| `icon` | 可选，Desktop 预设列表和输入框选择器中显示的图标：`bot`（默认）、`code`、`terminal`、`book-open`、`pen`、`search`、`bug`、`flask`、`shield`、`palette`、`rocket`、`brain`、`sparkles`、`database`、`globe` 或 `school`。未知的值显示默认图标；修改图标不会触发会话重建。 |
 | `keep-coding-instructions` | 默认为 `true`，将正文追加到基础人设；`false` 用正文替换基础人设，此时正文不能为空。除非 `complete` 为 `true`，否则仍保留核心策略。 |
 | `complete` | 默认为 `false`。设为 `true` 时，非空正文成为完整系统提示词，省去核心策略、常驻文档、技能指令和 v4 系统文本。优先于 `keep-coding-instructions`。 |
 | `include-runtime-context` | 默认为 `true`。设为 `false` 时，运行时上下文仅保留当前工作目录（cwd），完整模式下同样适用。 |
